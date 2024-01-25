@@ -22,12 +22,16 @@ public class PlayerMovingState : PlayerBaseState
         _movement = stateMachine.InputReader.Movement;
 
         if (_movement != Vector2.zero)
-            stateMachine.transform.rotation = Quaternion.Euler(new Vector3(0f, _movement.x > 0 ? 0 : 180f, 0f));
+            stateMachine.Animator.transform.rotation = Quaternion.Euler(_movement.x > 0 ? 1f : -1f, 1f, 1f);
 
-        float speed = stateMachine.InputReader.IsRunning ? stateMachine.RunningSpeed : stateMachine.MovementSpeed;
-        Move(_movement, speed, deltaTime);
 
         stateMachine.Animator.SetFloat(MovementSpeedHash, _movement != Vector2.zero ? 1 : 0, .05f, deltaTime);
+    }
+
+    public override void FixedTick(float fixedDeltaTime)
+    {
+        float speed = stateMachine.InputReader.IsRunning ? stateMachine.RunningSpeed : stateMachine.MovementSpeed;
+        Move(_movement, speed, fixedDeltaTime);
     }
 
     public override void Exit()

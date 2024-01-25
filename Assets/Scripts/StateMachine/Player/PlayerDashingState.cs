@@ -26,6 +26,8 @@ public class PlayerDashingState : PlayerBaseState
         Move(_movement, speed, deltaTime);
     }
 
+    public override void FixedTick(float fixedDeltaTime) { }
+
     public override void Exit() { }
 
     private IEnumerator StopDashing()

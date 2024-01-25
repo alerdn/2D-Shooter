@@ -9,18 +9,11 @@ public abstract class PlayerBaseState : State
         this.stateMachine = stateMachine;
     }
 
-    protected void Move(Vector3 movement, float speed, float deltaTime)
+    protected void Move(Vector2 movement, float speed, float fixedDeltaTime)
     {
-        Vector3 forward = stateMachine.MainCamera.transform.forward;
-        Vector3 right = stateMachine.MainCamera.transform.right;
+        movement.y = 0f;
+        Rigidbody2D rb = stateMachine.RigidBody2D;
 
-        forward.y = 0f;
-        right.y = 0f;
-
-        forward.Normalize();
-        right.Normalize();
-
-        movement = forward * movement.y + right * movement.x;
-        stateMachine.Controller.Move(movement * (speed * deltaTime));
+        rb.MovePosition(rb.position + movement * (speed * fixedDeltaTime));
     }
 }
