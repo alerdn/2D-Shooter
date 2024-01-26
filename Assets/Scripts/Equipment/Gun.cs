@@ -3,39 +3,44 @@ using System.Linq;
 using NaughtyAttributes;
 using UnityEngine;
 
-public class Gun : MonoBehaviour
+public class Gun : Equipment
 {
     #region PROPERTIES/FIELDS
     public float DamageBase { get; private set; } = 100f;
-    public float CriticalDamageBase { get; private set; } = 1.25f;
+    public float CriticalDamageMultiplierBase { get; private set; } = 1.25f;
     public float CriticalChanceBase { get; private set; } = 25f;
     public float MagicalDamageBase { get; private set; } = 100f;
-    public float ManaRecoveryBase { get; private set; } = 10f;
-
-    public List<RuneBase> Runes { get; private set; } = new();
-    public int MaxRuneCapacity { get; private set; } = 3;
-    public int CurrentRuneCapacity => Runes.Count;
 
     #endregion
+
+    private void Awake()
+    {
+        MaxRuneCapacity = 3;
+    }
 
     #region PUBLIC METHODS
 
     [Button]
     public void Shoot()
     {
-        Debug.Log($"Hunter shot and caused {GetDamage()} damage");
+        float damage = GetDamage();
+        float damageMultiplier = 1;
+
+        bool isCriticalHit = IsCriticalHit();
+        if (isCriticalHit)
+        {
+            damageMultiplier = GetCriticalDamageMultiplier();
+        }
+
+        damage *= damageMultiplier;
+        Debug.Log($"Hunter shot and caused {damage} {(isCriticalHit ? "critical" : "")} damage");
     }
 
-    public void AddRune(RuneBase rune)
+    [Button]
+    public void Cast()
     {
-        if (CurrentRuneCapacity >= MaxRuneCapacity) return;
+        float damage = GetMagicalDamage();
 
-        Runes.Add(rune);
-    }
-
-    public void RemoveRune(RuneBase rune)
-    {
-        Runes.Remove(rune);
     }
 
     #endregion
@@ -47,9 +52,9 @@ public class Gun : MonoBehaviour
         return DamageBase + (GetModifiers(RuneAttribute.DAMAGE) / 100f * DamageBase);
     }
 
-    public float GetCriticalDamage()
+    public float GetCriticalDamageMultiplier()
     {
-        return CriticalDamageBase + (GetModifiers(RuneAttribute.CRITICAL_DAMAGE) / 100f * CriticalDamageBase);
+        return CriticalDamageMultiplierBase + (GetModifiers(RuneAttribute.CRITICAL_DAMAGE) / 100f * CriticalDamageMultiplierBase);
     }
 
     public float GetCriticalChance()
@@ -62,32 +67,13 @@ public class Gun : MonoBehaviour
         return MagicalDamageBase + (GetModifiers(RuneAttribute.MAGICAL_DAMAGE) / 100f * MagicalDamageBase);
     }
 
-    public float GetManaRecovery()
-    {
-        return ManaRecoveryBase + (GetModifiers(RuneAttribute.MANA_RECOVERY) / 100f * ManaRecoveryBase);
-    }
-
     #endregion
 
     #region HELPERS
 
-    private float GetModifiers(RuneAttribute attribute)
+    private bool IsCriticalHit()
     {
-        return GetMinorRunes()
-            .Where((rune) => rune.Attribute == attribute)
-            .Aggregate(0f, (total, rune) => total + rune.Value);
-
-    }
-
-    private IEnumerable<MinorRune> GetMinorRunes()
-    {
-        foreach (RuneBase runeBase in Runes)
-        {
-            if (runeBase is MinorRune)
-            {
-                yield return runeBase as MinorRune;
-            }
-        }
+        return Random.Range(0, 100) < GetCriticalChance();
     }
 
     #endregion
