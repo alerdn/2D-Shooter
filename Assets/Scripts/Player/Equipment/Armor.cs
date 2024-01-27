@@ -2,14 +2,14 @@ using UnityEngine;
 
 public class Armor : Equipment
 {
-    public float HealthPointsBase { get; private set; } = 100f;
+    public float MaxHitPointsBase { get; private set; } = 100f;
     public float ManaRecoveryBase { get; private set; } = 10f;
 
     #region ATTRIBUTES
 
-    public float GetHealthPoints()
+    public float GetMaxHitPoints()
     {
-        return HealthPointsBase + (GetModifiers(RuneAttribute.HEALTH) / 100f * HealthPointsBase);
+        return MaxHitPointsBase + (GetModifiers(RuneAttribute.HEALTH) / 100f * MaxHitPointsBase);
     }
 
     public float GetManaRecovery()
